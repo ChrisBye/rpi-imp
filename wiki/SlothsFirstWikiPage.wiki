@@ -1,4 +1,4 @@
-#labels Deprecated,Phase-Requirements
+#labels Phase-Requirements
 Wiki's are fun
 
 communication. design. blah blah blah
