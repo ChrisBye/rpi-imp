@@ -13,6 +13,5 @@ class Algorithm():
         self.constants.add(UserSetConstant("c"))
         self.constants.add(UserSetConstant("d"))
 
-
     def Run():
         return self.USConstants["c"]/self.USConstants["d"]
