@@ -45,6 +45,12 @@ class GraphWindow:
                 n1 /= zoom
                 draw.line((512-((i+1)*8),256-n1)+(512-(i*8),256-n0), fill = self.colors[0])
 
+            self.stockprice.set_text(self.curstock + "(red)" + " : " + str(self.IMP.stocks[self.curstock].quotesshort.getAtTime().value))
+            self.algval.set_text("MovingAverage" + "(blue)" + " : " + str(self.stupid.getAtTime().value))
+        else:
+            self.stockprice.set_text("<Stock> : <Price>")
+            self.algval.set_text("<Algorithm> : <Value>")
+
         self.image.save("Tmp/tmpgraph.png")
         self.imagedisplay.set_from_file("Tmp/tmpgraph.png")
         return True
@@ -70,13 +76,28 @@ class GraphWindow:
         vbox.pack_start(self.graphframe)
         self.graphframe.show()
 
+        vbox2 = gtk.VBox(False,0)
+        vbox.pack_start(vbox2)
+        vbox2.show()
+        
+        self.stockprice = gtk.Label()
+        self.algval = gtk.Label()
+        vbox2.pack_start(self.stockprice)
+        vbox2.pack_start(self.algval)
+        self.stockprice.show()
+        self.algval.show()
+
+        self.stockprice.set_text("<Stock> : <Price>")
+        self.algval.set_text("<Algorithm> : <Value>")
+
+
         self.stockframe = gtk.Frame("Stock")
         self.stockentry = gtk.Entry()
         self.stockentry.set_max_length(10)
         self.stockentry.connect("activate", self.enter_callback, self.stockentry)
         self.stockframe.add(self.stockentry)
         self.stockentry.show()
-        vbox.pack_start(self.stockframe)
+        vbox2.pack_start(self.stockframe)
         self.stockframe.show()
         self.curstock = None
 
