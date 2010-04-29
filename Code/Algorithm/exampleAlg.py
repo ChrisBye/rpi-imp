@@ -1,7 +1,7 @@
 class Algorithm():
     def __init__(self):
         self.constants = UserSetConstantContainer()
-        self.constants.add(UserSetConstant("a"))
+        self.constants.add(UserSetConstant("a", max="437"))
         self.constants.add(UserSetConstant("b"))
 
     def Run():
