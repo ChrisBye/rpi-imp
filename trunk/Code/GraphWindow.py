@@ -37,6 +37,8 @@ class GraphWindow:
 
     def update(self):
         self.stockdata.update()
+        self.algbackend.update(self.stockdata) #Avert ye eyes
+
         # Clear the old image and get it ready for graphing
         self.image = self.imagegraph.copy()
 
@@ -44,8 +46,9 @@ class GraphWindow:
         #   selected algorithm. Otherwise, cancel everything.
         if self.stockdata.stocks.has_key(self.curstock):
             self.drawLines(self.stockdata.stocks[self.curstock].quotesshort, "red")
+            self.drawLines(self.algbackend.getAlgorithmDRS(self.curstock), "blue")
             self.stockprice.set_text(self.curstock + " (red)" + " : " + str(self.stockdata.stocks[self.curstock].quotesshort.getCur()))
-            #self.algval.set_text("MovingAverage" + " (blue)" + " : " + str(self.stupid.getCur()))
+            self.algval.set_text(self.algbackend.curalg + " (blue)" + " : " + str(self.algbackend.getAlgorithmDRS(self.curstock).getCur()))
         else:
             self.stockprice.set_text("<Stock> : <Price>")
             self.algval.set_text("<Algorithm> : <Value>")

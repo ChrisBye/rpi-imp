@@ -1,5 +1,10 @@
 import sys, os, glob
 
+from Helper.DataRangeShort import DataRangeShort
+from Helper.DataRange import DataPoint
+
+from time import time
+
 class AlgBackend:
     def __init__(self):
         self.algorithms = dict()
@@ -25,10 +30,13 @@ class AlgBackend:
         #   different classes have access to this class, but only one of them
         #   should call this update function.
         for alg in self.algorithms.keys():
-            for stock in stockdata.stocks:
-                if self.algorithmscache[alg][stock.symbol] == None:
-                    self.algorithmscache[alg][stock.symbol] = DataRangeShort(64)
-                self.algorithmscache[alg][stock.symbol].Run(stockdata,stock.symbol)
+            for symbol in stockdata.stocks:
+                if not self.algorithmscache[alg].has_key(symbol):
+                    self.algorithmscache[alg][symbol] = DataRangeShort(64)
+                self.algorithmscache[alg][symbol].add(DataPoint(self.algorithms[alg].Run(stockdata,symbol),time()))
+    
+    def getAlgorithmDRS(self, symbol):
+        return self.algorithmscache[self.curalg][symbol]
 
     def getAlgorithmNames(self):
         # Returns a list of all the names of the algorithms. Used by AlgWindow
