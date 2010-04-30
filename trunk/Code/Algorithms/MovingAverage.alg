@@ -1,6 +1,10 @@
 class Algorithm():
     def __init__(self):
-        self.constants = None
+        self.constants = list()
+        self.constants.append("Thud")
+        self.constants.append("Patches")
+        self.constants.append("Peaches")
+        self.constants.append("Sloth")
 
     def Options(self):
         return self.constants
