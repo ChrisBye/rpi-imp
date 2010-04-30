@@ -47,13 +47,13 @@ public class getCode extends javax.swing.JFrame {
             FileOutputStream fout = new FileOutputStream(jTextField1.getText() + ".alg");
             BufferedReader reader = new BufferedReader(new InputStreamReader(fin));
             String tempLine;
-            while(!(tempLine = reader.readLine()).equals("def Run():")) { //Print everything before the function
+            while(!(tempLine = reader.readLine()).equals("    def Run(self):")) { //Print everything before the function
                 new PrintStream(fout).println(tempLine);
             }
-                new PrintStream(fout).println(tempLine); //Print out "def Run():"
-            while(reader.ready()) { //Now keep outputting, but add in spaces
-                new PrintStream(fout).println("    " + reader.readLine());
-            }
+            new PrintStream(fout).println(tempLine); //Print out "def Run(self):"
+            new PrintStream(fout).println("        " + jTextArea1.getText().replaceAll("\n", "\n        ")); //Print the text area
+            new PrintStream(fout).println("alg = Algorithm()"); //Output the footer
+            new PrintStream(fout).println("self.algorithms[name[0][1]] = alg");
             fin.close();
             fout.close();
         }
@@ -93,10 +93,10 @@ public class getCode extends javax.swing.JFrame {
             }
 
             do{ //Just throw out data until we get to the actual algorithm
-            }while(!reader.readLine().equals("    def Run():"));
+            }while(!reader.readLine().equals("    def Run(self):"));
 
-            while(reader.ready()) { //Get the actual algorithm part
-                jTextArea1.setText(jTextArea1.getText() + reader.readLine().substring(8));
+            while(reader.ready() && !(line = reader.readLine()).equals("alg = Algorithm()") ) { //Get the actual algorithm part
+                jTextArea1.setText(jTextArea1.getText() + line.substring(8));
             }
 
             fin.close(); //Close up fin, and get the algorithm list
@@ -111,22 +111,6 @@ public class getCode extends javax.swing.JFrame {
 
     }
 
-    public void output() {
-        FileOutputStream fout;
-        try {
-            fout = new FileOutputStream("tmp.alg1", true); //Create temporary file
-
-            new PrintStream(fout).println(jTextArea1.getText()); //Print the text area
-
-            fout.close();
-        }
-        catch (IOException e) {
-            System.err.println ("Error opening tmp.alg1"); //Some mistake... crash gently
-            System.exit(-1);
-
-        }
-
-    }
 
     /** Creates new form getCode */
     public getCode(String tempname) {
@@ -178,6 +162,7 @@ public class getCode extends javax.swing.JFrame {
         jButton2 = new javax.swing.JButton();
         jButton3 = new javax.swing.JButton();
         jButton5 = new javax.swing.JButton();
+        jButton4 = new javax.swing.JButton();
 
         jDialog1.setLocationRelativeTo( null );
         jDialog1.setAlwaysOnTop(true);
@@ -456,6 +441,13 @@ public class getCode extends javax.swing.JFrame {
             }
         });
 
+        jButton4.setText("Insert Stock");
+        jButton4.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jButton4ActionPerformed(evt);
+            }
+        });
+
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
         layout.setHorizontalGroup(
@@ -475,20 +467,19 @@ public class getCode extends javax.swing.JFrame {
                                     .addComponent(jButton1))
                                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                                    .addComponent(jLabel4)
+                                    .addComponent(jScrollPane2, javax.swing.GroupLayout.PREFERRED_SIZE, 121, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                    .addComponent(jButton2))
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                                     .addGroup(layout.createSequentialGroup()
-                                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                                            .addComponent(jLabel4)
-                                            .addComponent(jScrollPane2, javax.swing.GroupLayout.PREFERRED_SIZE, 121, javax.swing.GroupLayout.PREFERRED_SIZE))
-                                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                                            .addComponent(jLabel5)
-                                            .addComponent(jScrollPane3, javax.swing.GroupLayout.PREFERRED_SIZE, 537, javax.swing.GroupLayout.PREFERRED_SIZE)))
-                                    .addGroup(layout.createSequentialGroup()
-                                        .addComponent(jButton2)
-                                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 441, Short.MAX_VALUE)
+                                        .addComponent(jButton4)
+                                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 320, Short.MAX_VALUE)
                                         .addComponent(jButton5)
                                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                        .addComponent(jButton3)))))))
+                                        .addComponent(jButton3))
+                                    .addComponent(jLabel5)
+                                    .addComponent(jScrollPane3, javax.swing.GroupLayout.PREFERRED_SIZE, 537, javax.swing.GroupLayout.PREFERRED_SIZE))))))
                 .addContainerGap())
         );
         layout.setVerticalGroup(
@@ -513,7 +504,8 @@ public class getCode extends javax.swing.JFrame {
                     .addComponent(jButton1)
                     .addComponent(jButton2)
                     .addComponent(jButton3)
-                    .addComponent(jButton5))
+                    .addComponent(jButton5)
+                    .addComponent(jButton4))
                 .addGap(32, 32, 32))
         );
 
@@ -535,7 +527,6 @@ public class getCode extends javax.swing.JFrame {
 
     private void jButton3ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton3ActionPerformed
         if(errorCheck()) { //Check for import/eval/return errors
-            output();
             jDialog3.setVisible(true);
         }
     }//GEN-LAST:event_jButton3ActionPerformed
@@ -550,7 +541,6 @@ public class getCode extends javax.swing.JFrame {
 
     private void jButton7ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton7ActionPerformed
         jDialog1.setVisible(false); //They've accepted the risks of import/eval, so let's output
-        output();
         jDialog3.setVisible(true);
     }//GEN-LAST:event_jButton7ActionPerformed
 
@@ -579,6 +569,10 @@ public class getCode extends javax.swing.JFrame {
             System.exit(2);
     }//GEN-LAST:event_jButton11ActionPerformed
 
+    private void jButton4ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton4ActionPerformed
+       jTextArea1.append("IMP.stocks[ENTER SYMBOL HERE]"); //Use stock: append IMP.stocks[ENTER SYMBOL HERE]
+    }//GEN-LAST:event_jButton4ActionPerformed
+
     /**
     * @param args the command line arguments
     */
@@ -597,6 +591,7 @@ public class getCode extends javax.swing.JFrame {
     private javax.swing.JButton jButton12;
     private javax.swing.JButton jButton2;
     private javax.swing.JButton jButton3;
+    private javax.swing.JButton jButton4;
     private javax.swing.JButton jButton5;
     private javax.swing.JButton jButton6;
     private javax.swing.JButton jButton7;
