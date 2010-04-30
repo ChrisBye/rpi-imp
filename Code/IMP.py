@@ -1,9 +1,6 @@
 import pygtk
 pygtk.require('2.0')
 import gtk
-import glib
-
-import sys, os, glob
 
 from AlgWindow import *
 from AlgBackend import *
@@ -13,6 +10,9 @@ from StockData import *
 
 class IMP:
     def __init__(self):
+        # The main IMP program (in all it's glory) simply creates and stores
+        #   references to all the other components of IMP and makes sure that
+        #   they have the proper references to each other
         self.algbackend = AlgBackend()
         self.algwindow = AlgWindow(self.algbackend)
         self.stockdata = StockData()

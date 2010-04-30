@@ -45,8 +45,13 @@ class GraphWindow:
         # If the stock the user entered is actually valid, graph it and the
         #   selected algorithm. Otherwise, cancel everything.
         if self.stockdata.stocks.has_key(self.curstock):
-            self.drawLines(self.stockdata.stocks[self.curstock].quotesshort, "red")
-            self.drawLines(self.algbackend.getAlgorithmDRS(self.curstock), "blue")
+            # Figure out the proper zoom factor (see drawLines below) and then
+            #   draws to the graph the stock info and then the algorithm
+            zoom = self.stockdata.stocks[self.curstock].quotesshort.getAtTime(time.time())/(GRAPH_SIZE_Y/2.0)
+            self.drawLines(self.stockdata.stocks[self.curstock].quotesshort, zoom, "red")
+            self.drawLines(self.algbackend.getAlgorithmDRS(self.curstock), zoom, "blue")
+
+            # Update the labels to display the proper information
             self.stockprice.set_text(self.curstock + " (red)" + " : " + str(self.stockdata.stocks[self.curstock].quotesshort.getCur()))
             self.algval.set_text(self.algbackend.curalg + " (blue)" + " : " + str(self.algbackend.getAlgorithmDRS(self.curstock).getCur()))
         else:
@@ -60,14 +65,14 @@ class GraphWindow:
     # drawLines takes a DataRangeShort (preferably, but it could be
     #   DataRange as well) and a color fill. It then graphs the data on the
     #   image
-    def drawLines(self, DRS, fillcolor):
+    def drawLines(self, DRS, zoom, fillcolor):
         draw = ImageDraw.Draw(self.image)
         # zoom is a multiplier to the effective position of the point. Currently
         #   it makes it so that the last data point gotten is always at the 
         #   middle. Rather naive, as it messes up with "jaggedy" data and
         #   tends to oversmooth high-priced stocks. This is something that can
         #   be improved greatly.
-        zoom = DRS.getAtTime(time.time())/(GRAPH_SIZE_Y/2.0)
+        
         for i in range(GRAPH_SIZE_X/INTERVAL):
             n0 = DRS.getAtTime(time.time()-i)
             n0 /= zoom
@@ -81,46 +86,71 @@ class GraphWindow:
         self.stockdata = stockdata
         self.algbackend = algbackend
 
+        # Create a gtk.Window, set the size to specifications based on global
+        #   constants, and then connect closing it to a delete event (which
+        #   closes gtk)
         self.window = gtk.Window(gtk.WINDOW_TOPLEVEL)
         self.window.set_title("IMP Graph")
-
         self.window.connect("delete_event", self.delete_event)
         self.window.set_border_width(0)
         self.window.set_size_request(GRAPH_SIZE_X+40,GRAPH_SIZE_Y+200)
-        vbox = gtk.VBox(False,0)
-        self.window.add(vbox)
-        vbox.show()
 
-        self.graphframe = gtk.Frame("Graph")
-        vbox.pack_start(self.graphframe)
-        self.graphframe.show()
+        # mainbox is where everything gets packed into. However, it should never
+        #   be touched after being created, so it only has a temporary reference
+        #   instead of being a class member
+        mainbox = gtk.VBox(False,0)
+        self.window.add(mainbox)
+        mainbox.show()
 
-        vbox2 = gtk.VBox(False,0)
-        vbox.pack_start(vbox2)
-        vbox2.show()
+        # graphframe is merely decorative and should never be referenced after
+        #   it's created
+        graphframe = gtk.Frame("Graph")
+        mainbox.pack_start(graphframe)
+        graphframe.show()
+
+        # graphmiscbox holds stock price and algorithm value labels, along with
+        #   a frame which contains the stock symbol entry. It should never be
+        #   referenced after it is created
+        graphmiscbox = gtk.VBox(False,0)
+        mainbox.pack_start(graphmiscbox)
+        graphmiscbox.show()
         
+        # stockprice and algval are referenced later on - they are updated each
+        #   time the graph is
         self.stockprice = gtk.Label()
         self.algval = gtk.Label()
-        vbox2.pack_start(self.stockprice)
-        vbox2.pack_start(self.algval)
+        graphmiscbox.pack_start(self.stockprice)
+        graphmiscbox.pack_start(self.algval)
         self.stockprice.show()
         self.algval.show()
 
+        # Default settings
         self.stockprice.set_text("<Stock> : <Price>")
         self.algval.set_text("<Algorithm> : <Value>")
 
 
-        self.stockframe = gtk.Frame("Stock")
+        # stockentry is where the user puts in the symbol of the stock they wish
+        #   to view
+        stockframe = gtk.Frame("Stock")
         self.stockentry = gtk.Entry()
         self.stockentry.set_max_length(10)
         self.stockentry.connect("activate", self.enter_callback, self.stockentry)
-        self.stockframe.add(self.stockentry)
+        stockframe.add(self.stockentry)
         self.stockentry.show()
-        vbox2.pack_start(self.stockframe)
-        self.stockframe.show()
+        graphmiscbox.pack_start(self.stockframe)
+        stockframe.show()
         self.curstock = None
 
 
+        # Another little piece of hackery. PIL (or Python Imaging Library) is
+        #   a powerful module for creating images. However, there's no easy
+        #   conversion between the imagebufs used by PIL and the pixbufs used by
+        #   pygtk, so, unfortunately, each time the graph is updated a temporary
+        #   file is written to the hard drive and then read back in. While
+        #   slower then reading from memory, it's still plenty fast enough
+        # The following code declares image, which is what's going to be
+        #   displayed for the graph, and imagegraph which is a series of lines.
+        #   imagegraph should not be modified after it is created
         self.image = Image.new("RGB", (GRAPH_SIZE_X, GRAPH_SIZE_Y), "white")
         self.imagegraph = self.image.copy()
         draw = ImageDraw.Draw(self.imagegraph)
