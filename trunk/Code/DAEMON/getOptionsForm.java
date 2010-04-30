@@ -185,11 +185,14 @@ public class getOptionsForm extends javax.swing.JFrame {
                 outputVar((Variable) myVars.get(counter), fout);
             }
 
-            new PrintStream(fout).println("def Run():");
+            new PrintStream(fout).println("    def Options(self:)");
+            new PrintStream(fout).println("        return self.constants");
+
+            new PrintStream(fout).println("    def Run(self):");
             if(new File("tmp.alg2").exists()) { //If the tmp2 file exists, we have copying to do
                 fin = new FileInputStream("tmp.alg2");
                 reader = new BufferedReader(new InputStreamReader(fin));
-                while(!reader.readLine().equals("def Run():")) {} //Chop off data until we get to the algorithm
+                while(!reader.readLine().equals("    def Run(self):")) {} //Chop off data until we get to the algorithm
                 while(reader.ready()) {
                     new PrintStream(fout).println(reader.readLine());
                 }
