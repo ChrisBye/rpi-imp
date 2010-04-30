@@ -33,9 +33,10 @@ class DataRange:
             if (time >= self.range[i].time) and (time < self.range[i+1].time):
                 return self.range[i].value
         return self.range[-1].value
-
+'''
     def Lerp(self, DP1, DP2, time):
         return DP1.value + (DP2.value - DP1.value) * ((DP1.time - time)/(DP1.time - DP2.time + 0.0))
+'''
 
 if __name__ == "__main__":
     point1 = DataPoint(10,0)
