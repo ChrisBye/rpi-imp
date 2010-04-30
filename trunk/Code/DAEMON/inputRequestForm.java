@@ -1,30 +1,149 @@
-/*
- * To change this template, choose Tools | Templates
- * and open the template in the editor.
- */
-
-/*
- * Daemon1.java
- *
- * Created on Apr 26, 2010, 1:16:41 AM
- */
+//DAEMON
+//inputRequestForm.java
+//Written by The Fightin' Mongooses
+//Sorry for eclectic conventions... Most of the code was GUI generated and disallows edits.
+//I've fixed it up as best as I can to look nice, but there might still be occasional oddities
 
 package daemon;
 import java.io.*; //For file input/output
 import javax.swing.DefaultListModel;
 
 
-/**
- *
- * @author Dave
- */
-
-
-
 public class inputRequestForm extends javax.swing.JFrame {
 
     String username = "";
     public DefaultListModel algModel = new DefaultListModel();
+
+    public void loginCheck() { //If the login button is pressed, make sure logins are working
+        try {
+            FileInputStream fin = new FileInputStream("list.usr"); //We need to check to make sure the user exists
+            BufferedReader reader = new BufferedReader(new InputStreamReader(fin));
+            String line = null;
+
+            while((line = reader.readLine()) != null) {
+                if(jTextField1.getText().equals(line)) { //We've found the user
+                    line = reader.readLine();
+                    if(jPasswordField1.getText().toString().equals(line)) { //If the password is correct, then move to welcome screen, set username
+                        jButton1.setEnabled(true);
+                        jButton3.setEnabled(true);
+                        jButton7.setEnabled(true);
+                        username = jTextField1.getText();
+                        jDialog1.setVisible(false);
+                        fin.close();
+
+                        fin = new FileInputStream(username + ".usr");
+                        reader = new BufferedReader(new InputStreamReader(fin));
+                        while(reader.ready()) {
+                            algModel.add(algModel.size(),reader.readLine());
+                        }
+
+
+                        return;
+                    }
+                    else { //If the password is wrong, show warning
+                        jLabel7.setText("Error! Bad password!");
+                        jDialog2.setVisible(true);
+                        jDialog1.setVisible(false);
+                        fin.close();
+                        return;
+                    }
+                }
+                else reader.readLine(); //Get rid of the extra password line
+            }
+            jLabel7.setText("Error! User doesn't exist.");
+            jDialog2.setVisible(true);
+            jDialog1.setVisible(false);
+            fin.close(); //Make sure to close the file
+        }
+        catch (IOException e) {
+            System.err.println ("Error opening list.usr"); //Some mistake... crash gently
+            System.exit(-1);
+
+        }
+    }
+
+    public void createAccount() { //If the account creation button is pressed, then create an account
+        if(jTextField1.getText().equals("list")) { //Make sure it's not list... We don't want to overwrite list.usr
+            jDialog1.setVisible(false);
+            jLabel7.setText("Error! Name already in use!");
+            jDialog2.setVisible(true);
+            return;
+        }
+        if(jPasswordField1.getText().toString().length() < 7) { //Make sure the password's not too short
+            jDialog1.setVisible(false);
+            jLabel7.setText("Error! Password too short!");
+            jDialog2.setVisible(true);
+            return;
+        }
+
+        try { //Now we're making sure there's no duplicate user
+            FileInputStream fin = new FileInputStream("list.usr");
+            BufferedReader reader = new BufferedReader(new InputStreamReader(fin));
+            String line = null;
+
+            while((line = reader.readLine()) != null) {
+                if(jTextField1.getText().equals(line)) {
+                    line = reader.readLine();
+                    jDialog1.setVisible(false);
+                    jLabel7.setText("Error! Name already in use!");
+                    jDialog2.setVisible(true);
+                    fin.close();
+                    return;
+                }
+                else reader.readLine(); //Get rid of the extra password line
+            }
+            fin.close(); //Make sure to close the file
+        }
+        catch (IOException e) {
+            System.err.println ("Error opening list.usr"); //Some mistake... crash gently
+            System.exit(-1);
+
+        }
+
+
+        try {
+            FileWriter file = new FileWriter("list.usr",true); //Open up the list.usr file and write out the username
+            BufferedWriter fout = new BufferedWriter(file);
+            fout.write(jTextField1.getText());
+            fout.newLine();
+
+            fout.write(jPasswordField1.getText().toString());
+            fout.newLine();
+            fout.close();
+            file.close();
+
+            new File(jTextField1.getText() + ".usr").createNewFile(); //Create the user's file
+
+            jDialog1.setVisible(false); //Everything's all set, so let's go to the welcome screen
+            jButton1.setEnabled(true);
+            jButton3.setEnabled(true);
+            username = jTextField1.getText();
+
+            return;
+        }
+        catch (IOException e) {
+            System.err.println ("Error opening usr file"); //Some mistake... crash gently
+            System.exit(-1);
+        }
+    }
+
+    public void loadAlgorithm() { //If load algorithm is selected, we need to copy it into the tmp file
+        try { //Grab the appropriate algorithm file
+            FileInputStream fin = new FileInputStream(jList1.getSelectedValue().toString() + ".alg");
+            FileOutputStream fout = new FileOutputStream("tmp.alg1");
+            BufferedReader reader = new BufferedReader(new InputStreamReader(fin));
+            while(reader.ready()) { //Copy everything out
+                new PrintStream(fout).println(reader.readLine());
+            }
+            fin.close();
+            fout.close();
+        }
+        catch (IOException e) { //If it doesn't then no problem, catch the exception and move on.
+            System.err.println("Error copying algorithm file!");
+        }
+        this.setVisible(false); //With the file grabbed, let's  boogy on over to the getOptions
+        new getOptionsForm(username).setVisible(true);
+    }
 
     /** Creates new form Daemon1 */
     public inputRequestForm() {
@@ -290,7 +409,7 @@ public class inputRequestForm extends javax.swing.JFrame {
     }//GEN-LAST:event_jButton1ActionPerformed
 
     private void center(java.awt.event.ComponentEvent evt) {//GEN-FIRST:event_center
-        this.setLocationRelativeTo( null );
+        this.setLocationRelativeTo( null ); //Make sure it's centered
     }//GEN-LAST:event_center
 
     private void jButton3ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton3ActionPerformed
@@ -299,150 +418,27 @@ public class inputRequestForm extends javax.swing.JFrame {
     }//GEN-LAST:event_jButton3ActionPerformed
 
     private void jButton2ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton2ActionPerformed
-
-        try {
-            FileInputStream fin = new FileInputStream("list.usr");
-            BufferedReader reader = new BufferedReader(new InputStreamReader(fin));
-            String line = null;
-
-            while((line = reader.readLine()) != null) {
-                if(jTextField1.getText().equals(line)) {
-                    line = reader.readLine();
-                    if(jPasswordField1.getText().toString().equals(line)) { //If the password is correct, then move to welcome screen, set username
-                        jButton1.setEnabled(true);
-                        jButton3.setEnabled(true);
-                        jButton7.setEnabled(true);
-                        username = jTextField1.getText();
-                        jDialog1.setVisible(false);
-                        fin.close();
-
-                        fin = new FileInputStream(username + ".usr");
-                        reader = new BufferedReader(new InputStreamReader(fin));
-                        while(reader.ready()) {
-                            algModel.add(algModel.size(),reader.readLine());
-                        }
-
-
-                        return;
-                    }
-                    else { //If the password is wrong, show warning
-                        jLabel7.setText("Error! Bad password!");
-                        jDialog2.setVisible(true);
-                        jDialog1.setVisible(false);
-                        fin.close();
-                        return;
-                    }
-                }
-                else reader.readLine(); //Get rid of the extra password line
-            }
-            jLabel7.setText("Error! User doesn't exist.");
-            jDialog2.setVisible(true);
-            jDialog1.setVisible(false);
-            fin.close(); //Make sure to close the file
-        }
-        catch (IOException e) {
-            System.err.println ("Error opening list.usr"); //Some mistake... crash gently
-            System.exit(-1);
-
-        }
+        loginCheck(); //This is the login button
     }//GEN-LAST:event_jButton2ActionPerformed
 
     private void jButton5ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton5ActionPerformed
-        jDialog2.setVisible(false);
+        jDialog2.setVisible(false); //For the error dialog box... Make it disappear, and the login dialog box reappear
         jDialog1.setVisible(true);
     }//GEN-LAST:event_jButton5ActionPerformed
 
     private void jButton6ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton6ActionPerformed
-        new File("tmp.arg1").delete();
+        new File("tmp.arg1").delete(); //This is the cancel button
         System.exit(1);
     }//GEN-LAST:event_jButton6ActionPerformed
 
     private void jButton4ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton4ActionPerformed
-        if(jTextField1.getText().equals("list")) { //Make sure it's not list... We don't want to overwrite list.usr
-            jDialog1.setVisible(false);
-            jLabel7.setText("Error! Name already in use!");
-            jDialog2.setVisible(true);
-            return;
-        }
-        if(jPasswordField1.getText().toString().length() < 7) { //Make sure the password's not too short
-            jDialog1.setVisible(false);
-            jLabel7.setText("Error! Password too short!");
-            jDialog2.setVisible(true);
-            return;
-        }
-
-        try { //Now we're making sure there's no duplicate user
-            FileInputStream fin = new FileInputStream("list.usr");
-            BufferedReader reader = new BufferedReader(new InputStreamReader(fin));
-            String line = null;
-
-            while((line = reader.readLine()) != null) {
-                if(jTextField1.getText().equals(line)) {
-                    line = reader.readLine();
-                    jDialog1.setVisible(false);
-                    jLabel7.setText("Error! Name already in use!");
-                    jDialog2.setVisible(true);
-                    fin.close();
-                    return;
-                }
-                else reader.readLine(); //Get rid of the extra password line
-            }
-            fin.close(); //Make sure to close the file
-        }
-        catch (IOException e) {
-            System.err.println ("Error opening list.usr"); //Some mistake... crash gently
-            System.exit(-1);
-
-        }
-
-
-        try {
-            FileWriter file = new FileWriter("list.usr",true); //Open up the list.usr file and write out the username
-            BufferedWriter fout = new BufferedWriter(file);
-            fout.write(jTextField1.getText());
-            fout.newLine();
-
-            fout.write(jPasswordField1.getText().toString());
-            fout.newLine();
-            fout.close();
-            file.close();
-
-            new File(jTextField1.getText() + ".usr").createNewFile(); //Create the user's file
-
-            jDialog1.setVisible(false); //Everything's all set, so let's go to the welcome screen
-            jButton1.setEnabled(true);
-            jButton3.setEnabled(true);
-            username = jTextField1.getText();
-
-            return;
-        }
-        catch (IOException e) {
-            System.err.println ("Error opening usr file"); //Some mistake... crash gently
-            System.exit(-1);
-        }
+        createAccount(); //This is the Create Account button
     }//GEN-LAST:event_jButton4ActionPerformed
 
     private void jButton7ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton7ActionPerformed
-        try { //Grab the appropriate algorithm file
-            FileInputStream fin = new FileInputStream(jList1.getSelectedValue().toString() + ".alg");
-            FileOutputStream fout = new FileOutputStream("tmp.alg1");
-            BufferedReader reader = new BufferedReader(new InputStreamReader(fin));
-            while(reader.ready()) { //Copy everything out
-                new PrintStream(fout).println(reader.readLine());
-            }
-            fin.close();
-            fout.close();
-        }
-        catch (IOException e) { //If it doesn't then no problem, catch the exception and move on.
-            System.err.println("Error copying algorithm file!");
-        }
-        this.setVisible(false); //With the file grabbed, let's  boogy on over to the getOptions
-        new getOptionsForm(username).setVisible(true);
+        loadAlgorithm(); //Load the appropriate algorithm
     }//GEN-LAST:event_jButton7ActionPerformed
 
-    /**
-    * @param args the command line arguments
-    */
     public static void main(String args[]) {
         java.awt.EventQueue.invokeLater(new Runnable() {
             public void run() {

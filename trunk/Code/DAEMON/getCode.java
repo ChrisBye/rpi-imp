@@ -1,40 +1,42 @@
-/*
- * To change this template, choose Tools | Templates
- * and open the template in the editor.
- */
-
-/*
- * getCode.java
- *
- * Created on Apr 28, 2010, 11:57:21 PM
- */
+//DAEMON
+//getCode.java
+//Written by The Fightin' Mongooses
+//Sorry for eclectic conventions... Most of the code was GUI generated and disallows edits.
+//I've fixed it up as best as I can to look nice, but there might still be occasional oddities
 
 package daemon;
-import java.util.*; //For the Linked List
 import java.io.*; //For file management
 import javax.swing.DefaultListModel; //For the Default List Model
 
-/**
- *
- * @author Dave
- */
+
 public class getCode extends javax.swing.JFrame {
 
-    public List myVars = new LinkedList(); //Used to store the variables
-    public Variable tempVar = new Variable(); //Used to store a temporary Variable for when we grab them for the list
     public DefaultListModel varModel = new DefaultListModel(); //Stores the var list's ListModel
     public DefaultListModel algModel = new DefaultListModel();
-    public static int MIN_INT = -2147483647; //Java has no preprocessor, so this is the closest I can get to #DEFINE MIN_INT -2147483647
-    public static int MAX_INT = 2147483647;
     String username;
 
+    public void createAlgorithm() {
+        if(jTextField1.getText().isEmpty()) { //Don't want a blank title
+            jDialog3.setVisible(false);
+            jDialog5.setVisible(true);
+        }
+        else if(new File(jTextField1.getText() + ".alg").exists()) { //If we're overwriting something, check
+            jDialog3.setVisible(false);
+            jDialog4.setVisible(true);
+        }
+        else {
+            copyTempFile(); //Copy the temporary file as the algorithm
+            new File("tmp.alg1").delete();
+            try { //Copy the code
+                FileOutputStream fout = new FileOutputStream(username + ".usr", true);
+                new PrintStream(fout).println(jTextField1.getText());
+            } catch (FileNotFoundException ex) {
+                System.out.println("Error opening user file!");
+                System.exit(-1);
+            }
 
-    public class Variable {
-        String name;
-        int min = MIN_INT;
-        int max = MAX_INT;
-        int digits = -1;
-        float interval = -1;
+            System.exit(2);
+        }
 
     }
 
@@ -61,7 +63,7 @@ public class getCode extends javax.swing.JFrame {
 
     }
     
-    public Boolean errorCheck() {
+    public Boolean errorCheck() { //This supplies warnings if there's bad code or no return value
         if(jTextArea1.getText().indexOf("import") != -1) {
             jDialog1.setVisible(true);
             return false;
@@ -78,29 +80,26 @@ public class getCode extends javax.swing.JFrame {
     }
 
     public void getInfo() {
-                try { //Check to see if tmp.alg1 exists... If it does, then grab the variables from it
+        try { //Check to see if tmp.alg1 exists... If it does, then grab the variables from it
             FileInputStream fin = new FileInputStream("tmp.alg1");
             BufferedReader reader = new BufferedReader(new InputStreamReader(fin));
-            tempVar = new Variable();
-            while((tempVar.name = reader.readLine()).startsWith("#")) { //Grab variables from the temp file
-                tempVar.name = tempVar.name.substring(1);
-                tempVar.min = Integer.parseInt(reader.readLine().substring(1));
-                tempVar.max = Integer.parseInt(reader.readLine().substring(1));
-                tempVar.digits = Integer.parseInt(reader.readLine().substring(1));
-                tempVar.interval = Float.parseFloat(reader.readLine().substring(1));
-                myVars.add(tempVar);
-                varModel.add(varModel.getSize(), tempVar.name);
-                tempVar = new Variable();
+            String line;
+            while((line = reader.readLine()).startsWith("#")) { //Grab variables from the temp file
+                reader.readLine(); //Skip the lines we don't care about
+                reader.readLine();
+                reader.readLine();
+                reader.readLine();
+                varModel.add(varModel.getSize(), line.substring(1)); //Add the line
             }
 
             do{ //Just throw out data until we get to the actual algorithm
-            }while(!reader.readLine().equals("def Run():"));
+            }while(!reader.readLine().equals("    def Run():"));
 
-            while(reader.ready()) {
-                jTextArea1.setText(jTextArea1.getText() + reader.readLine().substring(4));
+            while(reader.ready()) { //Get the actual algorithm part
+                jTextArea1.setText(jTextArea1.getText() + reader.readLine().substring(8));
             }
 
-            fin.close();
+            fin.close(); //Close up fin, and get the algorithm list
             fin = new FileInputStream(username + ".usr");
             reader = new BufferedReader(new InputStreamReader(fin));
             while(reader.ready()) {
@@ -556,28 +555,7 @@ public class getCode extends javax.swing.JFrame {
     }//GEN-LAST:event_jButton7ActionPerformed
 
     private void jButton9ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton9ActionPerformed
-        if(jTextField1.getText().isEmpty()) {
-            jDialog3.setVisible(false);
-            jDialog5.setVisible(true);
-        }
-        else if(new File(jTextField1.getText() + ".alg").exists()) {
-            jDialog3.setVisible(false);
-            jDialog4.setVisible(true);
-        }
-        else {
-            copyTempFile();
-            new File("tmp.alg1").delete();
-            try {
-                FileOutputStream fout = new FileOutputStream(username + ".usr", true);
-                new PrintStream(fout).println(jTextField1.getText());
-            } catch (FileNotFoundException ex) {
-                System.out.println("Error opening user file!");
-                System.exit(-1);
-            }
-
-            System.exit(2);
-        }
-
+        createAlgorithm();
     }//GEN-LAST:event_jButton9ActionPerformed
 
     private void jTextField1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jTextField1ActionPerformed
@@ -595,7 +573,7 @@ public class getCode extends javax.swing.JFrame {
     }//GEN-LAST:event_jButton12ActionPerformed
 
     private void jButton11ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton11ActionPerformed
-        new File("tmp.alg1").renameTo(new File(jTextField1.getText() + ".alg"));
+        new File("tmp.alg1").renameTo(new File(jTextField1.getText() + ".alg")); //If we're okay to overwrite, finish things up
             copyTempFile();
             new File("tmp.alg1").delete();
             System.exit(2);
