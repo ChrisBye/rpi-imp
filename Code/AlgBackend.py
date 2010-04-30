@@ -3,6 +3,7 @@ import sys, os, glob
 class AlgBackend:
     def __init__(self):
         self.algorithms = dict()
+        self.algorithmscache = dict()
         self.curalg = ""
 
         # This is a little bit of a hack. The .alg file is simply executable
@@ -17,6 +18,17 @@ class AlgBackend:
             name = inalg.split(".alg")
             name[0] = name[0].split("/")
             execfile(inalg)
+            self.algorithmscache[name[0][1]] = dict()
+
+    def update(self, stockdata):
+        # MAKE SURE THIS IS ONLY CALLED ONCE! This is extremely important! Two
+        #   different classes have access to this class, but only one of them
+        #   should call this update function.
+        for alg in self.algorithms.keys():
+            for stock in stockdata.stocks:
+                if self.algorithmscache[alg][stock.symbol] == None:
+                    self.algorithmscache[alg][stock.symbol] = DataRangeShort(64)
+                self.algorithmscache[alg][stock.symbol].Run(stockdata,stock.symbol)
 
     def getAlgorithmNames(self):
         # Returns a list of all the names of the algorithms. Used by AlgWindow

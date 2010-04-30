@@ -6,29 +6,18 @@ import glib
 import sys, os, glob
 
 from AlgWindow import *
+from AlgBackend import *
 from GraphWindow import *
+from StockData import *
 
-from Stock import Stock
 
 class IMP:
     def __init__(self):
-        # load algorithms
-        # load scraper
+        self.algbackend = AlgBackend()
+        self.algwindow = AlgWindow(self.algbackend)
+        self.stockdata = StockData()
+        self.graphwindow = GraphWindow(self.stockdata,self.algbackend)
 
-        self.algwindow = AlgWindow(self)
-        self.graphwindow = GraphWindow(self)
-
-        self.stocks = dict()
-
-    def loadStock(self, symbol):
-        if symbol == "test":
-            self.stocks["test"] = Stock(symbol)
-        else:
-            pass
-
-    def updateStock(self):
-        for stock in self.stocks.values():
-            stock.update()
 
 if __name__ == "__main__":
     test = IMP()

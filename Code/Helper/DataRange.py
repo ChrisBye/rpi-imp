@@ -18,11 +18,15 @@ class DataRange:
     def add(self, DP):
         self.range.append(DP)
 
-    def getAtTime(self,time=None):
+    def getCur(self):
+        if len(self.range) >= 1:
+            return self.range[-1].value
+        else:
+            return None
+
+    def getAtTime(self,time):
         if len(self.range) == 0:
             return None
-        elif time == None:
-            return self.range[-1]
         if (time < self.range[0].time):
             return self.range[0].value
         for i in range(len(self.range)-1):
