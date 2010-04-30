@@ -1,6 +1,10 @@
 from Stock import Stock
 
 class StockData:
+    # StockData is essentially just a container class for all the stocks.
+    #   That being said, if it was necessary for optimization, it would be
+    #   pretty easy to add some sort of optimization code here (probably dealing
+    #   with some sort of caching.
     def __init__(self):
         self.stocks = dict()
 
