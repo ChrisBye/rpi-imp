@@ -9,8 +9,8 @@ class Algorithm():
     def Options(self):
         return self.constants
 
-    def Run(self,symbol,IMP):
-        return IMP.stocks[symbol].average
+    def Run(self,stockdata,symbol):
+        return stockdata.stocks[symbol].average
 
 alg = Algorithm()
 self.algorithms[name[0][1]] = alg

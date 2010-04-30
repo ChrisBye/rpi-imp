@@ -18,6 +18,9 @@ class Stock:
             self.lasttime = time.time()
             self.interval = random.randint(1,5)
             self.add(DataPoint(self.price, time.time()))
+        else:
+            # get the scraper
+            pass
 
     def add(self, DP):
         self.quotes.add(DP)
