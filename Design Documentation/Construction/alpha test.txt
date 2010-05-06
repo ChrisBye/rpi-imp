@@ -1,0 +1,3 @@
+Preliminary test results:
+
+User scenarios work fine. IMP's algorithm processor appears to work fine, but need further testing as we get more data. Although it's not part of the main project and has no use cases associated with it, DAEMON works as written, but produces code that doesn't quite match up with IMP.
