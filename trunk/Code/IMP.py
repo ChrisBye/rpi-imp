@@ -36,6 +36,10 @@ class IMP:
     def getStockPrice(self, symbol):
         return self.stockdata.stocks[symbol].price
 
+    def GetAlgorithms(self, algname):
+        # Currently bugged, see past revision
+        return 0
+
 if __name__ == "__main__":
     test = IMP()
     gtk.main()
