@@ -2,14 +2,17 @@ import sys, os, glob
 
 from Helper.DataRangeShort import DataRangeShort
 from Helper.DataRange import DataPoint
+from Helper.UserSetConstant import *
 
 from time import time
+import math
 
 class AlgBackend:
-    def __init__(self):
+    def __init__(self, IMP):
         self.algorithms = dict()
         self.algorithmscache = dict()
         self.curalg = ""
+        self.IMP = IMP
 
         # This is a little bit of a hack. The .alg file is simply executable
         #   python code. In the final product, it should make sure to sanitize
@@ -48,6 +51,9 @@ class AlgBackend:
         #   algorithm. This is used by AlgWindow to display all the options to
         #   the user and allow them to enter options
         return self.algorithms[self.curalg].Options()
+
+    def setConstant(self, constant, value):
+        self.algorithms[self.curalg].constants[constant].setValue(value)
 
     def setCurAlg(self, algname):
         # Simply sets the current algorithm, though not before checking that

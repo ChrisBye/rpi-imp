@@ -47,7 +47,10 @@ class GraphWindow:
         if self.stockdata.stocks.has_key(self.curstock):
             # Figure out the proper zoom factor (see drawLines below) and then
             #   draws to the graph the stock info and then the algorithm
-            zoom = self.stockdata.stocks[self.curstock].quotesshort.getAtTime(time.time())/(GRAPH_SIZE_Y/2.0)
+            #zoom = self.stockdata.stocks[self.curstock].quotesshort.getAtTime(time.time())/(GRAPH_SIZE_Y/2.0)
+            zoomMax = self.stockdata.stocks[self.curstock].getMax()/(GRAPH_SIZE_Y/2.0)
+            zoomMin = self.stockdata.stocks[self.curstock].getMin()/(GRAPH_SIZE_Y/2.0)
+            zoom = (zoomMax - zoomMin)/2 + zoomMin
             self.drawLines(self.stockdata.stocks[self.curstock].quotesshort, zoom, "red")
             self.drawLines(self.algbackend.getAlgorithmDRS(self.curstock), zoom, "blue")
 
@@ -137,7 +140,7 @@ class GraphWindow:
         self.stockentry.connect("activate", self.enter_callback, self.stockentry)
         stockframe.add(self.stockentry)
         self.stockentry.show()
-        graphmiscbox.pack_start(self.stockframe)
+        graphmiscbox.pack_start(stockframe)
         stockframe.show()
         self.curstock = None
 
@@ -165,7 +168,7 @@ class GraphWindow:
         self.imagedisplay = gtk.Image()
         self.imagedisplay.set_from_file("Tmp/tmpgraph.png")
         self.imagedisplay.show()
-        self.graphframe.add(self.imagedisplay)
+        graphframe.add(self.imagedisplay)
 
         self.window.show()
 

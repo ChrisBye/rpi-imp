@@ -11,6 +11,7 @@ class Stock:
         self.quotes = DataRange()
         self.quotesshort = DataRangeShort(64)
         self.average = None
+        self.price = 0
 
         self.test = False
         if self.symbol == "test":
@@ -48,6 +49,12 @@ class Stock:
             curprice = urllib.urlopen('http://finance.yahoo.com/d/quotes.csv?s='+'+'.join(self.symbol) + '&f=l1&e=.csv').read().split()
             print curprice
             self.add(DataPoint(float(curprice[0]), time.time())) 
+
+    def getMax(self):
+        return self.quotesshort.getMax()
+
+    def getMin(self):
+        return self.quotesshort.getMin()
 
     def getQuote(self, getTime = None):
         if getTime:

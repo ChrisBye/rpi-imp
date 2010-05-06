@@ -1,16 +1,14 @@
+
 class Algorithm():
-    def __init__(self):
-        self.constants = list()
-        self.constants.append("Thud")
-        self.constants.append("Patches")
-        self.constants.append("Peaches")
-        self.constants.append("Sloth")
+    def __init__(self, IMP):
+        self.IMP = IMP
+        self.constants = dict()
 
     def Options(self):
         return self.constants
 
     def Run(self,stockdata,symbol):
-        return stockdata.stocks[symbol].average
+        return self.IMP.BuiltInFunc("average",symbol)
 
-alg = Algorithm()
+alg = Algorithm(self.IMP)
 self.algorithms[name[0][1]] = alg

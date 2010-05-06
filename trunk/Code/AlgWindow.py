@@ -10,9 +10,9 @@ class AlgWindow:
             gtk.main_quit()
         return False
 
-    def option_constant_callback(self, widget, constant):
-        print constant.get_text()
-        # check backend to makesure the constant is workable
+    def option_constant_callback(self, value, constant):
+        self.backend.setConstant(constant.get_text(), float(value.get_text()))
+        # check backend to make sure the constant is workable
 
     def update(self):
         # update is called every 100 millisecs. It checks to see whether the
@@ -36,7 +36,7 @@ class AlgWindow:
         # if the backend exists i.e. we're not testing, then get list of options
         #   from the backend. Otherwise, create a list of fake options.
         if self.backend != None:
-            optionlist = self.backend.getOptions()
+            optionlist = self.backend.getOptions().keys()
         else:
             for i in range(7):
                 optionlist.append("Test" + "-" + str(i))
@@ -49,7 +49,7 @@ class AlgWindow:
         for option in optionlist:
             label = gtk.Label(option)
             entry = gtk.Entry()
-            entry.connect("activate", self.option_constant_callback, entry)
+            entry.connect("activate", self.option_constant_callback, label)
             hbox = gtk.HBox(False,0)
             hbox.pack_start(label, True, True, 0)
             hbox.pack_start(entry, True, True, 0)
