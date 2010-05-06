@@ -14,7 +14,19 @@ class DataRangeShort(DataRange):
 
     def totalrange(self):
         if len(self.range) >= 1:
-            return time() - self.range[-1].time
+            return time() - self.range[0].time
+
+    def getMax(self):
+        retmax = self.range[0].value
+        for dp in self.range:
+            retmax = max(dp.value, retmax)
+        return retmax
+
+    def getMin(self):
+        retmin = self.range[0].value
+        for dp in self.range:
+            retmin = min(dp.value, retmin)
+        return retmin
 
 if __name__ == "__main__":
     test = DataRangeShort(10)
