@@ -22,9 +22,6 @@ class Stock:
             self.lasttime = time.time()
             self.interval = random.randint(1,5)
             self.add(DataPoint(self.price, time.time()))
-        else:
-            # get the scraper
-            pass
 
     def add(self, DP):
         self.quotes.add(DP)
@@ -45,10 +42,13 @@ class Stock:
                 self.price -= random.random()*5
                 self.add(DataPoint(self.price, time.time()))
         else:
-            # Currently weirdly broken. Just use 'test' for now until fixed
             curprice = urllib.urlopen('http://finance.yahoo.com/d/quotes.csv?s='+'+'.join(self.symbol) + '&f=l1&e=.csv').read().split()
-            print curprice
-            self.add(DataPoint(float(curprice[0]), time.time())) 
+            self.add(DataPoint(float(curprice[0]), time.time()))
+            self.price = float(curprice[0])
+            if self.average == None:
+                self.average = self.price
+            else:
+                self.average = (self.price + self.quotesshort.totalrange() * self.average) / (self.quotesshort.totalrange() + 1)
 
     def getMax(self):
         return self.quotesshort.getMax()
